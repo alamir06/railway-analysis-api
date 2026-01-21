@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethio-Djibouti Railway AI Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="train-icon">🚆</span>
+            <h1>Ethio-Djibouti Railway AI Predictor</h1>
+            <p>Real-time Weather-Based Delay Predictions</p>
+            <p class="subtitle">Powered by Machine Learning & Live Weather Data</p>
+        </div>
+
+        <div class="content">
+            <!-- Input Form Section -->
+            <div class="form-section">
+                <h2>Plan Your Journey</h2>
+
+                <form id="predictionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="trainNumber">Train Number</label>
+                            <select id="trainNumber" name="train_number" required>
+                                <option value="">Select Train</option>
+                                <option value="101">101 - Express</option>
+                                <option value="102">102 - Express</option>
+                                <option value="K1">K1 - Regional</option>
+                                <option value="K2">K2 - Regional</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="travelDate">Travel Date</label>
+                            <input type="date" id="travelDate" name="travel_date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startStation">Start Station</label>
+                            <select id="startStation" name="start_station" required>
+                                <option value="">Select Station</option>
+                                <option value="LABU">LABU - Addis Ababa</option>
+                                <option value="NG">NG - Nazret</option>
+                                <option value="Miesso">Miesso - Mieso</option>
+                                <option value="DD">DD - Dire Dawa</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="arriveStation">Arrival Station</label>
+                            <select id="arriveStation" name="arrive_station" required>
+                                <option value="">Select Station</option>
+                                <option value="LABU">LABU - Addis Ababa</option>
+                                <option value="NG">NG - Nazret</option>
+                                <option value="Miesso">Miesso - Mieso</option>
+                                <option value="DD">DD - Dire Dawa</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" id="predictBtn">
+                        🚀 Predict Journey Times
+                    </button>
+                </form>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>🛰️ Fetching real-time weather data...</p>
+                    <p class="loading-subtext">Analyzing weather conditions for your travel date</p>
+                </div>
+
+                <div class="error" id="errorContainer">
+                    <strong>⚠️ Error:</strong> <span id="errorMessage"></span>
+                </div>
+
+                <div class="success-message" id="successMessage">
+                    <strong>✅ Success:</strong> <span id="successText">Prediction completed successfully!</span>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <h2>Prediction Results</h2>
+
+                <div id="initialMessage">
+                    <div class="welcome-message">
+                        <div class="welcome-icon">🚆</div>
+                        <h3>Welcome to Ethio-Djibouti Railway AI Predictor</h3>
+                        <p>Enter your journey details to get AI-powered predictions<br>with real-time weather data from
+                            OpenWeatherMap</p>
+                        <div class="how-it-works">
+                            <strong>How it works:</strong><br>
+                            1. Select your train and travel date<br>
+                            2. Choose start and arrival stations<br>
+                            3. Get AI-powered delay predictions<br>
+                            4. View real-time weather impact
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-container" id="resultContainer">
+                    <!-- Weather Card -->
+                    <div class="weather-card" id="weatherCard">
+                        <div class="weather-header">
+                            <span class="weather-icon" id="weatherIcon">🌤️</span>
+                            <div class="weather-info">
+                                <h3 id="weatherStation">Station Weather</h3>
+                                <p id="weatherCondition">Loading weather data...</p>
+                            </div>
+                            <div class="weather-temp-main" id="weatherTempMain">--°</div>
+                        </div>
+                        <div class="weather-details">
+                            <div>🌡️ Temperature: <span id="weatherTemp">--</span>°C</div>
+                            <div>💨 Wind Speed: <span id="weatherWind">--</span> km/h</div>
+                            <div>🌧️ Precipitation: <span id="weatherPrecip">--</span> mm</div>
+                            <div>👁️ Visibility: <span id="weatherVisibility">--</span> km</div>
+                            <div>💧 Humidity: <span id="weatherHumidity">--</span>%</div>
+                            <div>🔍 Condition: <span id="weatherMain">--</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Prediction Card -->
+                    <div class="prediction-card">
+                        <h3>📅 Journey Prediction</h3>
+
+                        <div class="journey-summary">
+                            <strong>Journey:</strong>
+                            <span id="journeyRoute">-- to --</span> •
+                            <span id="journeyTrain">Train --</span> •
+                            <span id="journeyDate">--</span>
+                        </div>
+
+                        <div class="time-comparison">
+                            <div class="time-box">
+                                <div class="time-label">Planned Departure</div>
+                                <div class="time-value" id="plannedDeparture">--:--</div>
+                            </div>
+                            <div class="time-box">
+                                <div class="time-label">Predicted Departure</div>
+                                <div class="time-value" id="predictedDeparture">--:--</div>
+                                <div class="difference" id="departureDifference">--</div>
+                            </div>
+                        </div>
+
+                        <div class="time-comparison">
+                            <div class="time-box">
+                                <div class="time-label">Planned Arrival</div>
+                                <div class="time-value" id="plannedArrival">--:--</div>
+                            </div>
+                            <div class="time-box">
+                                <div class="time-label">Predicted Arrival</div>
+                                <div class="time-value" id="predictedArrival">--:--</div>
+                                <div class="difference" id="arrivalDifference">--</div>
+                            </div>
+                        </div>
+
+                        <div class="journey-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">Distance</div>
+                                <div class="stat-value" id="journeyDistance">-- km</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Travel Time</div>
+                                <div class="stat-value" id="travelTime">-- min</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reliability Card -->
+                    <div class="reliability-card">
+                        <h4>🔍 Reliability Assessment</h4>
+                        <div class="reliability-grid">
+                            <div class="reliability-item">
+                                <div class="reliability-label">Departure Confidence</div>
+                                <div class="reliability-value" id="departureConfidence">--</div>
+                            </div>
+                            <div class="reliability-item">
+                                <div class="reliability-label">Arrival Confidence</div>
+                                <div class="reliability-value" id="arrivalConfidence">--</div>
+                            </div>
+                            <div class="reliability-item">
+                                <div class="reliability-label">Weather Impact</div>
+                                <div class="reliability-value" id="weatherImpact">--</div>
+                            </div>
+                            <div class="reliability-item">
+                                <div class="reliability-label">Overall Confidence</div>
+                                <div class="reliability-value" id="overallConfidence">--</div>
+                            </div>
+                        </div>
+                        <div class="reliability-notes" id="reliabilityNotes">
+                            Using real-time weather data from your selected travel date
+                        </div>
+                    </div>
+
+                    <!-- Model Info -->
+                    <div class="model-info">
+                        <strong>Model:</strong> <span id="modelUsed">Gradient Boosting AI</span> •
+                        <strong>Accuracy:</strong> ±2.3min departure, ±5.5min arrival
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Information -->
+        <div class="system-info">
+            <h3>Ethio-Djibouti Railway System</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-value">±2.3min</div>
+                    <div class="info-label">Departure Accuracy</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value">±5.5min</div>
+                    <div class="info-label">Arrival Accuracy</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value">4</div>
+                    <div class="info-label">Stations</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-value">Live</div>
+                    <div class="info-label">Weather Data</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>
